@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyTodo List</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app">
+    <header class="app-header">
+      <h1>MyTodo List</h1>
+    </header>
+
+    <div class="input-row">
+      <input type="text" id="taskInput" placeholder="Enter a task" />
+      <button id="addBtn">ADD</button>
+    </div>
+
+    <div class="list-area" id="listArea">
+      <div class="empty-state" id="emptyState">
+        <svg class="empty-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="24" width="44" height="28" rx="3" fill="#c9cfe0"/>
+          <rect x="16" y="30" width="32" height="4" rx="1" fill="#e8ebf3"/>
+          <rect x="16" y="38" width="20" height="4" rx="1" fill="#e8ebf3"/>
+          <path d="M14 24 L20 10 H44 L50 24" stroke="#c9cfe0" stroke-width="3" fill="none" stroke-linejoin="round"/>
+          <circle cx="46" cy="16" r="7" fill="#dfe3ee"/>
+          <text x="46" y="20" font-size="9" text-anchor="middle" fill="#8b93a8">?</text>
+        </svg>
+        <p>Empty Todo List</p>
+      </div>
+
+      <ul class="task-list" id="taskList"></ul>
+    </div>
+
+    <footer class="app-footer">
+      <span id="totalTasks">Total Tasks: 0</span>
+      <button id="deleteAllBtn">DELETE ALL</button>
+    </footer>
+  </div>
+
+<script src="script.js"></script>
+</body>
+</html>
