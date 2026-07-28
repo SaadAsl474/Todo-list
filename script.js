@@ -1,97 +1,136 @@
 // Get the input box, buttons, and list from the page
-const taskInput = document.getElementById('taskInput');
-const addBtn = document.getElementById('addBtn');
-const taskList = document.getElementById('taskList');
-const emptyState = document.getElementById('emptyState');
-const totalTasks = document.getElementById('totalTasks');
-const deleteAllBtn = document.getElementById('deleteAllBtn');
+var taskInput = document.getElementById('taskInput');
+var addBtn = document.getElementById('addBtn');
+var taskList = document.getElementById('taskList');
+var emptyState = document.getElementById('emptyState');
+var totalTasks = document.getElementById('totalTasks');
+var deleteAllBtn = document.getElementById('deleteAllBtn');
 
-// This array holds all our tasks. It resets if page is refreshed.
-let tasks = [];
+// array to hold all tasks
+var tasks = [];
 
-// This function draws the tasks on the screen every time something changes
-function render() {
-  taskList.innerHTML = ''; // remove old list first
-
-  if (tasks.length === 0) {
-    // if no tasks, show the "empty" message
-    emptyState.style.display = 'flex';
-    taskList.classList.remove('has-items');
-  } else {
-    // if tasks exist, hide the "empty" message
-    emptyState.style.display = 'none';
-    taskList.classList.add('has-items');
-
-    // go through each task and make a list item for it
-    tasks.forEach((task, index) => {
-      const li = document.createElement('li');
-      li.className = 'task-item' + (task.done ? ' completed' : '');
-
-      // checkbox + task text + delete button
-      // data-index tells us which task this is
-      li.innerHTML = `
-        <input type="checkbox" ${task.done ? 'checked' : ''} data-index="${index}" class="toggle-check">
-        <span>${escapeHtml(task.text)}</span>
-        <button class="remove-btn" data-index="${index}">DELETE</button>
-      `;
-
-      taskList.appendChild(li);
-    });
+// try to load saved tasks when page starts
+try {
+  var saved = localStorage.getItem("myTasks");
+  if (saved != null) {
+    tasks = JSON.parse(saved);
   }
+} catch (e) {
+  console.log("localStorage not available, starting empty");
+}
 
-  // update the total task count text
-  totalTasks.textContent = `Total Tasks: ${tasks.length}`;
+// save tasks into localStorage
+function saveTasks() {
+  try {
+    localStorage.setItem("myTasks", JSON.stringify(tasks));
+  } catch (e) {
+    console.log("localStorage not available, could not save");
+  }
 }
 
 // makes text safe to show, so no bad code can run if typed in
 function escapeHtml(str) {
-  const div = document.createElement('div');
+  var div = document.createElement("div");
   div.textContent = str;
   return div.innerHTML;
 }
 
-// adds a new task when user types something and hits add
-function addTask() {
-  const value = taskInput.value.trim();
-  if (value === '') return; // do nothing if input is empty
+// draws all tasks on the screen
+function render() {
+  taskList.innerHTML = "";
 
-  tasks.push({ text: value, done: false });
-  taskInput.value = ''; // clear the input box
-  render();
-  taskInput.focus(); // put cursor back in input box
+  if (tasks.length == 0) {
+    emptyState.style.display = "flex";
+    taskList.classList.remove("has-items");
+  } else {
+    emptyState.style.display = "none";
+    taskList.classList.add("has-items");
+
+    for (var i = 0; i < tasks.length; i++) {
+      var li = document.createElement("li");
+
+      if (tasks[i].done == true) {
+        li.className = "task-item completed";
+      } else {
+        li.className = "task-item";
+      }
+
+      var checkedText = "";
+      if (tasks[i].done == true) {
+        checkedText = "checked";
+      }
+
+      li.innerHTML =
+        '<input type="checkbox" ' + checkedText + ' data-index="' + i + '" class="toggle-check">' +
+        "<span>" + escapeHtml(tasks[i].text) + "</span>" +
+        '<button class="remove-btn" data-index="' + i + '">DELETE</button>';
+
+      taskList.appendChild(li);
+    }
+  }
+
+  totalTasks.textContent = "Total Tasks: " + tasks.length;
 }
 
-// run addTask when Add button is clicked
-addBtn.addEventListener('click', addTask);
+// adds a new task
+function addTask() {
+  var value = taskInput.value.trim();
+  if (value == "") {
+    return;
+  }
 
-// run addTask when Enter key is pressed
-taskInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') addTask();
+  var newTask = {};
+  newTask.text = value;
+  newTask.done = false;
+
+  tasks.push(newTask);
+  saveTasks();
+
+  taskInput.value = "";
+  render();
+  taskInput.focus();
+}
+
+// click add button
+addBtn.addEventListener("click", function () {
+  addTask();
 });
 
-// this listens for clicks anywhere inside the task list
-// it checks if checkbox or delete button was clicked
-taskList.addEventListener('click', (e) => {
-  const index = e.target.getAttribute('data-index');
-  if (index === null) return; // click was not on checkbox or delete button
+// press enter key inside input box
+taskInput.addEventListener("keydown", function (e) {
+  if (e.key == "Enter") {
+    addTask();
+  }
+});
 
-  // if checkbox clicked, mark task done or not done
-  if (e.target.classList.contains('toggle-check')) {
+// clicking checkbox or delete button inside the list
+taskList.addEventListener("click", function (e) {
+  var index = e.target.getAttribute("data-index");
+  if (index == null) {
+    return;
+  }
+  index = parseInt(index);
+
+  if (e.target.classList.contains("toggle-check")) {
     tasks[index].done = e.target.checked;
+    saveTasks();
     render();
   }
 
-  // if delete button clicked, remove that task
-  if (e.target.classList.contains('remove-btn')) {
+  if (e.target.classList.contains("remove-btn")) {
     tasks.splice(index, 1);
+    saveTasks();
     render();
   }
 });
 
-// delete all tasks when this button is clicked
-deleteAllBtn.addEventListener('click', () => {
-  if (tasks.length === 0) return; // nothing to delete
+// delete all tasks button
+deleteAllBtn.addEventListener("click", function () {
+  if (tasks.length == 0) {
+    return;
+  }
   tasks = [];
+  saveTasks();
   render();
 });
 
